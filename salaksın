@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Emel İçin</title>
+    <style>
+        /* Sayfa Temel Ayarları */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            height: 100vh;
+            overflow: hidden; /* Kaydırma çubuğunu engeller */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            flex-direction: column;
+        }
+
+        /* Ortadaki Beyaz Yuvarlak Butonlar İçin Ortak Stil */
+        #mainButton, #secondButton {
+            width: 150px;
+            height: 150px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex; /* Başlangıçta görünür */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            z-index: 10;
+            transition: transform 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: absolute; /* Üst üste binmemeleri için */
+        }
+
+        /* İkinci buton başlangıçta gizli */
+        #secondButton {
+            display: none;
+        }
+
+        #mainButton:active, #secondButton:active {
+            transform: scale(0.95);
+        }
+
+        /* --- UÇUŞAN KALP TASARIMI --- */
+        .heart {
+            position: absolute;
+            background-color: red;
+            width: 50px;
+            height: 50px;
+            transform: rotate(-45deg);
+            animation: floatAround linear infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+        }
+
+        .heart::before { top: -25px; left: 0; }
+        .heart::after { left: 25px; top: 0; }
+
+        .heart-text {
+            position: absolute;
+            z-index: 2;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transform: rotate(45deg);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* Uçuşma Animasyonu */
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) rotate(-45deg) scale(0.5); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(-45deg) scale(1); opacity: 0; }
+        }
+
+        /* --- KIRIK KALP FİNALİ --- */
+        #brokenHeartContainer {
+            display: none; /* Başlangıçta gizli */
+            position: relative;
+            width: 300px;
+            height: 300px;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            animation: fadeIn 2s ease-in;
+        }
+
+        /* Kırık Kalp SVG Rengi */
+        .broken-heart-svg {
+            fill: #ff0000;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Kırık Kalbin İçindeki Yazı */
+        .broken-heart-text {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="mainButton">Emel Bana Tıkla</div>
+
+    <div id="secondButton">Tekrar bana tıkla emel</div>
+
+    <div id="brokenHeartContainer">
+        <svg class="broken-heart-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9zM229.3 256l-80-80-37.3 37.3c-14.9 14.9-40.2 4.3-40.2-16.8v-74.7c0-10.7 12.8-16 20.3-8.6l46.8 46.8 48.8-48.8 41.6 41.6zM380 229.3c0 10.7-12.8 16-20.3 8.6l-46.8-46.8-48.8 48.8-41.6-41.6 80 80 37.3-37.3c14.9-14.9 40.2-4.3 40.2 16.8v74.7z"/>
+        </svg>
+        <div class="broken-heart-text">Kalbimi kırdın</div>
+    </div>
+
+
+    <script>
+        const mainButton = document.getElementById('mainButton');
+        const secondButton = document.getElementById('secondButton');
+        const brokenHeartContainer = document.getElementById('brokenHeartContainer');
+        const body = document.body;
+        let heartInterval;
+
+        // --- 1. AŞAMA: İlk Tıklama ---
+        mainButton.addEventListener('click', function() {
+            // İlk butonu gizle
+            mainButton.style.display = 'none';
+
+            // Kalp yağmurunu başlat
+            startHeartRain();
+
+            // 4 saniye sonra kalp üretimini durdur
+            setTimeout(() => {
+                clearInterval(heartInterval);
+            }, 4000);
+
+            // Yaklaşık 11 saniye sonra (kalpler ekrandan gidince) ikinci butonu göster
+            setTimeout(() => {
+                secondButton.style.display = 'flex';
+            }, 11000);
+        });
+
+
+        // --- 2. AŞAMA: İkinci Tıklama ---
+        secondButton.addEventListener('click', function() {
+            // İkinci butonu gizle
+            secondButton.style.display = 'none';
+            
+            // Kırık kalbi göster
+            brokenHeartContainer.style.display = 'flex';
+        });
+
+
+        // --- YARDIMCI FONKSİYONLAR ---
+        function startHeartRain() {
+            // İlk etapta hemen bir miktar üret
+            for(let i=0; i<20; i++) createHeart();
+            // Sonra sürekli üret (biraz daha hızlı - 200ms)
+            heartInterval = setInterval(createHeart, 200);
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+
+            const textSpan = document.createElement('span');
+            textSpan.classList.add('heart-text');
+            textSpan.innerText = Math.random() > 0.5 ? "Seni" : "Seviyorum";
+            heart.appendChild(textSpan);
+
+            const startX = Math.random() * 100;
+            const startY = Math.random() * 100;
+            
+            heart.style.left = startX + 'vw';
+            heart.style.top = startY + 'vh';
+
+            const moveX = (Math.random() - 0.5) * 300;
+            const moveY = (Math.random() - 0.5) * 300;
+            
+            heart.style.setProperty('--tx', moveX + 'px');
+            heart.style.setProperty('--ty', moveY + 'px');
+
+            // Ağır çekim süresi (5-10 sn arası)
+            const duration = 5 + Math.random() * 5; 
+            heart.style.animationDuration = duration + 's';
+
+            body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, duration * 1000);
+        }
+    </script>
+</body>
+</html>
